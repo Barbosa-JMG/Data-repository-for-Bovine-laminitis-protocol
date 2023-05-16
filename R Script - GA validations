@@ -1,0 +1,691 @@
+
+######
+
+df <- read.csv("Laminite_GC2030_SemiQuali_AfterFiltering.csv", sep=",",header = TRUE) 
+Num <- df[,3:88]
+Num.mat <- as.matrix(Num)
+Diagnostic <- as.factor(df$Diagnostic)
+
+## PCO
+
+library(e1071) #hamming distance
+dist.ham<-as.dist(hamming.distance(Num.mat))
+require(ade4) # multivariate analysis pco
+mds <- dudi.pco(dist.ham, scannf=F)
+require(ggplot2) # fancy plotting
+ggplot(data.frame(mds$li, df),
+       aes(x=A1,y=A2,col=Diagnostic,shape=Diagnostic))+
+  geom_point(size=5, alpha=1) +
+  scale_color_manual(values=c(Control="#1B9E77", Laminitis="#D95F02", QC_Blank="black"))+
+  geom_hline(yintercept=0, col="darkgrey")+ 
+  geom_vline(xintercept=0, col="darkgrey")+
+  scale_y_continuous(name='PCO2')+
+  scale_x_continuous(name='PCO1')+
+  coord_fixed() +
+  theme_bw() +
+  theme(text=element_text(size = 16, family="serif"))
+
+ggsave(filename = "LaminiteAllFeatures_PCO.png",width = 10,height = 5, dpi = 300, limitsize = F)
+
+
+
+
+### GA-PLS (chromosome I)### 
+
+Mx <- df[,2:88]
+
+library("plsVarSel")
+library('caret')
+
+set.seed(1)
+X <- Num.mat
+y <- Diagnostic
+xga <- ga_pls(y, X, GA.threshold = 10, iters = 100, popSize = 100)
+Xga <- Mx[,xga$ga.selection]  
+Xga$Diagnostic <- Mx$Diagnostic
+
+set.seed(2)
+ctrl <- trainControl(method = "repeatedcv",
+                     number = 10,
+                     repeats = 10,
+                     classProbs = TRUE,
+                     summaryFunction = twoClassSummary)
+
+set.seed(3)
+plsFit <- train(
+  Diagnostic ~ .,
+  data = Xga,
+  method = "pls",
+  trControl = ctrl,
+  metric = "ROC",
+  tuneLength = 5,
+  tuneGrid = expand.grid(ncomp = 1:5))
+
+plsFit
+varImp(plsFit)
+ggplot(plsFit)+ theme_bw()+theme(text=element_text(size = 16, family="serif"))
+
+
+### GA-PLS (chromosome II)### 
+
+set.seed(4)
+X <- Num.mat
+y <- Diagnostic
+xga <- ga_pls(y, X, GA.threshold = 10, iters = 100, popSize = 100)
+Xga <- Mx[,xga$ga.selection]  
+Xga$Diagnostic <- Mx$Diagnostic
+
+set.seed(5)
+ctrl <- trainControl(method = "repeatedcv",
+                     number = 10,
+                     repeats = 10,
+                     classProbs = TRUE,
+                     summaryFunction = twoClassSummary)
+
+set.seed(6)
+plsFit <- train(
+  Diagnostic ~ .,
+  data = Xga,
+  method = "pls",
+  trControl = ctrl,
+  metric = "ROC",
+  tuneLength = 5,
+  tuneGrid = expand.grid(ncomp = 1:5))
+
+plsFit
+varImp(plsFit)
+ggplot(plsFit)+ theme_bw()+theme(text=element_text(size = 16, family="serif"))
+
+
+### GA-PLS (chromosome III)### 
+
+set.seed(7)
+X <- Num.mat
+y <- Diagnostic
+xga <- ga_pls(y, X, GA.threshold = 10, iters = 100, popSize = 100)
+Xga <- Mx[,xga$ga.selection]  
+Xga$Diagnostic <- Mx$Diagnostic
+
+set.seed(8)
+ctrl <- trainControl(method = "repeatedcv",
+                     number = 10,
+                     repeats = 10,
+                     classProbs = TRUE,
+                     summaryFunction = twoClassSummary)
+
+set.seed(9)
+plsFit <- train(
+  Diagnostic ~ .,
+  data = Xga,
+  method = "pls",
+  trControl = ctrl,
+  metric = "ROC",
+  tuneLength = 5,
+  tuneGrid = expand.grid(ncomp = 1:5))
+
+plsFit
+varImp(plsFit)
+ggplot(plsFit)+ theme_bw()+theme(text=element_text(size = 16, family="serif"))
+
+### GA-PLS (chromosome IV)### 
+
+set.seed(10)
+X <- Num.mat
+y <- Diagnostic
+xga <- ga_pls(y, X, GA.threshold = 10, iters = 100, popSize = 100)
+Xga <- Mx[,xga$ga.selection]  
+Xga$Diagnostic <- Mx$Diagnostic
+
+set.seed(11)
+ctrl <- trainControl(method = "repeatedcv",
+                     number = 10,
+                     repeats = 10,
+                     classProbs = TRUE,
+                     summaryFunction = twoClassSummary)
+
+set.seed(12)
+plsFit <- train(
+  Diagnostic ~ .,
+  data = Xga,
+  method = "pls",
+  trControl = ctrl,
+  metric = "ROC",
+  tuneLength = 5,
+  tuneGrid = expand.grid(ncomp = 1:5))
+
+plsFit
+varImp(plsFit)
+ggplot(plsFit)+ theme_bw()+theme(text=element_text(size = 16, family="serif"))
+
+
+Num.mat <- as.matrix(Xga)
+library(e1071) #hamming distance
+dist.ham<-as.dist(hamming.distance(Num.mat))
+require(ade4) # multivariate analysis pco
+mds <- dudi.pco(dist.ham, scannf=F)
+require(ggplot2) # fancy plotting
+ggplot(data.frame(mds$li, Xga),
+       aes(x=A1,y=A2,col=Diagnostic,shape=Diagnostic))+
+  geom_point(size=5, alpha=1) +
+  scale_color_manual(values=c(Control="#1B9E77", Laminitis="#D95F02"))+
+  geom_hline(yintercept=0, col="darkgrey")+ 
+  geom_vline(xintercept=0, col="darkgrey")+
+  scale_y_continuous(name='PCO2')+
+  scale_x_continuous(name='PCO1')+
+  coord_fixed() +
+  theme_bw() +
+  theme(text=element_text(size = 16, family="serif"))
+
+ggsave(filename = "LaminiteAllFeatures_PCO.png",width = 10,height = 5, dpi = 300, limitsize = F)
+
+
+
+
+
+
+
+### GA-PLS (chromosome V)### 
+
+set.seed(13)
+X <- Num.mat
+y <- Diagnostic
+xga <- ga_pls(y, X, GA.threshold = 10, iters = 100, popSize = 100)
+Xga <- Mx[,xga$ga.selection]  
+Xga$Diagnostic <- Mx$Diagnostic
+
+set.seed(14)
+ctrl <- trainControl(method = "repeatedcv",
+                     number = 10,
+                     repeats = 10,
+                     classProbs = TRUE,
+                     summaryFunction = twoClassSummary)
+
+set.seed(15)
+plsFit <- train(
+  Diagnostic ~ .,
+  data = Xga,
+  method = "pls",
+  trControl = ctrl,
+  metric = "ROC",
+  tuneLength = 5,
+  tuneGrid = expand.grid(ncomp = 1:5))
+
+plsFit
+varImp(plsFit)
+ggplot(plsFit)+ theme_bw()+theme(text=element_text(size = 16, family="serif"))
+
+### GA-PLS (chromosome VI)### 
+
+set.seed(16)
+X <- Num.mat
+y <- Diagnostic
+xga <- ga_pls(y, X, GA.threshold = 10, iters = 100, popSize = 100)
+Xga <- Mx[,xga$ga.selection]  
+Xga$Diagnostic <- Mx$Diagnostic
+
+set.seed(17)
+ctrl <- trainControl(method = "repeatedcv",
+                     number = 10,
+                     repeats = 10,
+                     classProbs = TRUE,
+                     summaryFunction = twoClassSummary)
+
+set.seed(18)
+plsFit <- train(
+  Diagnostic ~ .,
+  data = Xga,
+  method = "pls",
+  trControl = ctrl,
+  metric = "ROC",
+  tuneLength = 5,
+  tuneGrid = expand.grid(ncomp = 1:5))
+
+plsFit
+varImp(plsFit)
+ggplot(plsFit)+ theme_bw()+theme(text=element_text(size = 16, family="serif"))
+
+### GA-PLS (chromosome VII)### 
+
+set.seed(19)
+X <- Num.mat
+y <- Diagnostic
+xga <- ga_pls(y, X, GA.threshold = 10, iters = 100, popSize = 100)
+Xga <- Mx[,xga$ga.selection]  
+Xga$Diagnostic <- Mx$Diagnostic
+
+set.seed(20)
+ctrl <- trainControl(method = "repeatedcv",
+                     number = 10,
+                     repeats = 10,
+                     classProbs = TRUE,
+                     summaryFunction = twoClassSummary)
+
+set.seed(21)
+plsFit <- train(
+  Diagnostic ~ .,
+  data = Xga,
+  method = "pls",
+  trControl = ctrl,
+  metric = "ROC",
+  tuneLength = 5,
+  tuneGrid = expand.grid(ncomp = 1:5))
+
+plsFit
+varImp(plsFit)
+ggplot(plsFit)+ theme_bw()+theme(text=element_text(size = 16, family="serif"))
+
+### GA-PLS (chromosome VIII)### 
+
+set.seed(22)
+X <- Num.mat
+y <- Diagnostic
+xga <- ga_pls(y, X, GA.threshold = 10, iters = 100, popSize = 100)
+Xga <- Mx[,xga$ga.selection]  
+Xga$Diagnostic <- Mx$Diagnostic
+
+set.seed(23)
+ctrl <- trainControl(method = "repeatedcv",
+                     number = 10,
+                     repeats = 10,
+                     classProbs = TRUE,
+                     summaryFunction = twoClassSummary)
+
+set.seed(24)
+plsFit <- train(
+  Diagnostic ~ .,
+  data = Xga,
+  method = "pls",
+  trControl = ctrl,
+  metric = "ROC",
+  tuneLength = 5,
+  tuneGrid = expand.grid(ncomp = 1:5))
+
+plsFit
+varImp(plsFit)
+ggplot(plsFit)+ theme_bw()+theme(text=element_text(size = 16, family="serif"))
+
+### GA-PLS (chromosome IX)### 
+
+set.seed(25)
+X <- Num.mat
+y <- Diagnostic
+xga <- ga_pls(y, X, GA.threshold = 10, iters = 100, popSize = 100)
+Xga <- Mx[,xga$ga.selection]  
+Xga$Diagnostic <- Mx$Diagnostic
+
+set.seed(26)
+ctrl <- trainControl(method = "repeatedcv",
+                     number = 10,
+                     repeats = 10,
+                     classProbs = TRUE,
+                     summaryFunction = twoClassSummary)
+
+set.seed(27)
+plsFit <- train(
+  Diagnostic ~ .,
+  data = Xga,
+  method = "pls",
+  trControl = ctrl,
+  metric = "ROC",
+  tuneLength = 5,
+  tuneGrid = expand.grid(ncomp = 1:5))
+
+plsFit
+varImp(plsFit)
+ggplot(plsFit)+ theme_bw()+theme(text=element_text(size = 16, family="serif"))
+
+### GA-PLS (chromosome X)### 
+
+set.seed(28)
+X <- Num.mat
+y <- Diagnostic
+xga <- ga_pls(y, X, GA.threshold = 10, iters = 100, popSize = 100)
+Xga <- Mx[,xga$ga.selection]  
+Xga$Diagnostic <- Mx$Diagnostic
+
+set.seed(29)
+ctrl <- trainControl(method = "repeatedcv",
+                     number = 10,
+                     repeats = 10,
+                     classProbs = TRUE,
+                     summaryFunction = twoClassSummary)
+
+set.seed(30)
+plsFit <- train(
+  Diagnostic ~ .,
+  data = Xga,
+  method = "pls",
+  trControl = ctrl,
+  metric = "ROC",
+  tuneLength = 5,
+  tuneGrid = expand.grid(ncomp = 1:5))
+
+plsFit
+varImp(plsFit)
+ggplot(plsFit)+ theme_bw()+theme(text=element_text(size = 16, family="serif"))
+
+### GA-PLS (chromosome XI)### 
+
+set.seed(31)
+X <- Num.mat
+y <- Diagnostic
+xga <- ga_pls(y, X, GA.threshold = 10, iters = 100, popSize = 100)
+Xga <- Mx[,xga$ga.selection]  
+Xga$Diagnostic <- Mx$Diagnostic
+
+set.seed(32)
+ctrl <- trainControl(method = "repeatedcv",
+                     number = 10,
+                     repeats = 10,
+                     classProbs = TRUE,
+                     summaryFunction = twoClassSummary)
+
+set.seed(33)
+plsFit <- train(
+  Diagnostic ~ .,
+  data = Xga,
+  method = "pls",
+  trControl = ctrl,
+  metric = "ROC",
+  tuneLength = 5,
+  tuneGrid = expand.grid(ncomp = 1:5))
+
+plsFit
+varImp(plsFit)
+ggplot(plsFit)+ theme_bw()+theme(text=element_text(size = 16, family="serif"))
+
+### GA-PLS (chromosome XII)### 
+
+set.seed(34)
+X <- Num.mat
+y <- Diagnostic
+xga <- ga_pls(y, X, GA.threshold = 10, iters = 100, popSize = 100)
+Xga <- Mx[,xga$ga.selection]  
+Xga$Diagnostic <- Mx$Diagnostic
+
+set.seed(35)
+ctrl <- trainControl(method = "repeatedcv",
+                     number = 10,
+                     repeats = 10,
+                     classProbs = TRUE,
+                     summaryFunction = twoClassSummary)
+
+set.seed(36)
+plsFit <- train(
+  Diagnostic ~ .,
+  data = Xga,
+  method = "pls",
+  trControl = ctrl,
+  metric = "ROC",
+  tuneLength = 5,
+  tuneGrid = expand.grid(ncomp = 1:5))
+
+plsFit
+varImp(plsFit)
+ggplot(plsFit)+ theme_bw()+theme(text=element_text(size = 16, family="serif"))
+
+### GA-PLS (chromosome XIII)### 
+
+set.seed(37)
+X <- Num.mat
+y <- Diagnostic
+xga <- ga_pls(y, X, GA.threshold = 10, iters = 100, popSize = 100)
+Xga <- Mx[,xga$ga.selection]  
+Xga$Diagnostic <- Mx$Diagnostic
+
+set.seed(38)
+ctrl <- trainControl(method = "repeatedcv",
+                     number = 10,
+                     repeats = 10,
+                     classProbs = TRUE,
+                     summaryFunction = twoClassSummary)
+
+set.seed(39)
+plsFit <- train(
+  Diagnostic ~ .,
+  data = Xga,
+  method = "pls",
+  trControl = ctrl,
+  metric = "ROC",
+  tuneLength = 5,
+  tuneGrid = expand.grid(ncomp = 1:5))
+
+plsFit
+varImp(plsFit)
+ggplot(plsFit)+ theme_bw()+theme(text=element_text(size = 16, family="serif"))
+
+### GA-PLS (chromosome XIV)### 
+
+set.seed(40)
+X <- Num.mat
+y <- Diagnostic
+xga <- ga_pls(y, X, GA.threshold = 10, iters = 100, popSize = 100)
+Xga <- Mx[,xga$ga.selection]  
+Xga$Diagnostic <- Mx$Diagnostic
+
+set.seed(41)
+ctrl <- trainControl(method = "repeatedcv",
+                     number = 10,
+                     repeats = 10,
+                     classProbs = TRUE,
+                     summaryFunction = twoClassSummary)
+
+set.seed(42)
+plsFit <- train(
+  Diagnostic ~ .,
+  data = Xga,
+  method = "pls",
+  trControl = ctrl,
+  metric = "ROC",
+  tuneLength = 5,
+  tuneGrid = expand.grid(ncomp = 1:5))
+
+plsFit
+varImp(plsFit)
+ggplot(plsFit)+ theme_bw()+theme(text=element_text(size = 16, family="serif"))
+
+### GA-PLS (chromosome XV)### 
+
+set.seed(43)
+X <- Num.mat
+y <- Diagnostic
+xga <- ga_pls(y, X, GA.threshold = 10, iters = 100, popSize = 100)
+Xga <- Mx[,xga$ga.selection]  
+Xga$Diagnostic <- Mx$Diagnostic
+
+set.seed(44)
+ctrl <- trainControl(method = "repeatedcv",
+                     number = 10,
+                     repeats = 10,
+                     classProbs = TRUE,
+                     summaryFunction = twoClassSummary)
+
+set.seed(45)
+plsFit <- train(
+  Diagnostic ~ .,
+  data = Xga,
+  method = "pls",
+  trControl = ctrl,
+  metric = "ROC",
+  tuneLength = 5,
+  tuneGrid = expand.grid(ncomp = 1:5))
+
+plsFit
+varImp(plsFit)
+ggplot(plsFit)+ theme_bw()+theme(text=element_text(size = 16, family="serif"))
+
+### GA-PLS (chromosome XVI)### 
+
+set.seed(46)
+X <- Num.mat
+y <- Diagnostic
+xga <- ga_pls(y, X, GA.threshold = 10, iters = 100, popSize = 100)
+Xga <- Mx[,xga$ga.selection]  
+Xga$Diagnostic <- Mx$Diagnostic
+
+set.seed(47)
+ctrl <- trainControl(method = "repeatedcv",
+                     number = 10,
+                     repeats = 10,
+                     classProbs = TRUE,
+                     summaryFunction = twoClassSummary)
+
+set.seed(48)
+plsFit <- train(
+  Diagnostic ~ .,
+  data = Xga,
+  method = "pls",
+  trControl = ctrl,
+  metric = "ROC",
+  tuneLength = 5,
+  tuneGrid = expand.grid(ncomp = 1:5))
+
+plsFit
+varImp(plsFit)
+ggplot(plsFit)+ theme_bw()+theme(text=element_text(size = 16, family="serif"))
+
+### GA-PLS (chromosome XVII)### 
+
+set.seed(49)
+X <- Num.mat
+y <- Diagnostic
+xga <- ga_pls(y, X, GA.threshold = 10, iters = 100, popSize = 100)
+Xga <- Mx[,xga$ga.selection]  
+Xga$Diagnostic <- Mx$Diagnostic
+
+set.seed(50)
+ctrl <- trainControl(method = "repeatedcv",
+                     number = 10,
+                     repeats = 10,
+                     classProbs = TRUE,
+                     summaryFunction = twoClassSummary)
+
+set.seed(51)
+plsFit <- train(
+  Diagnostic ~ .,
+  data = Xga,
+  method = "pls",
+  trControl = ctrl,
+  metric = "ROC",
+  tuneLength = 5,
+  tuneGrid = expand.grid(ncomp = 1:5))
+
+plsFit
+varImp(plsFit)
+ggplot(plsFit)+ theme_bw()+theme(text=element_text(size = 16, family="serif"))
+
+### GA-PLS (chromosome XVIII)### 
+
+set.seed(52)
+X <- Num.mat
+y <- Diagnostic
+xga <- ga_pls(y, X, GA.threshold = 10, iters = 100, popSize = 100)
+Xga <- Mx[,xga$ga.selection]  
+Xga$Diagnostic <- Mx$Diagnostic
+
+set.seed(53)
+ctrl <- trainControl(method = "repeatedcv",
+                     number = 10,
+                     repeats = 10,
+                     classProbs = TRUE,
+                     summaryFunction = twoClassSummary)
+
+set.seed(54)
+plsFit <- train(
+  Diagnostic ~ .,
+  data = Xga,
+  method = "pls",
+  trControl = ctrl,
+  metric = "ROC",
+  tuneLength = 5,
+  tuneGrid = expand.grid(ncomp = 1:5))
+
+plsFit
+varImp(plsFit)
+ggplot(plsFit)+ theme_bw()+theme(text=element_text(size = 16, family="serif"))
+
+Num.mat <- as.matrix(Xga)
+library(e1071) #hamming distance
+dist.ham<-as.dist(hamming.distance(Num.mat))
+require(ade4) # multivariate analysis pco
+mds <- dudi.pco(dist.ham, scannf=F)
+require(ggplot2) # fancy plotting
+ggplot(data.frame(mds$li, Xga),
+       aes(x=A1,y=A2,col=Diagnostic,shape=Diagnostic))+
+  geom_point(size=5, alpha=1.0) +
+  scale_color_manual(values=c(Control="#1B9E77", Laminitis="#D95F02"))+
+  geom_hline(yintercept=0, col="darkgrey")+ 
+  geom_vline(xintercept=0, col="darkgrey")+
+  scale_y_continuous(name='PCO2')+
+  scale_x_continuous(name='PCO1')+
+  coord_fixed() +
+  theme_bw() +
+  theme(text=element_text(size = 16, family="serif"))
+
+ggsave(filename = "Laminite_GA_PCO.png",width = 10,height = 5, dpi = 300, limitsize = F)
+
+
+### GA-PLS (chromosome XIX)### 
+
+set.seed(55)
+X <- Num.mat
+y <- Diagnostic
+xga <- ga_pls(y, X, GA.threshold = 10, iters = 100, popSize = 100)
+Xga <- Mx[,xga$ga.selection]  
+Xga$Diagnostic <- Mx$Diagnostic
+
+set.seed(56)
+ctrl <- trainControl(method = "repeatedcv",
+                     number = 10,
+                     repeats = 10,
+                     classProbs = TRUE,
+                     summaryFunction = twoClassSummary)
+
+set.seed(57)
+plsFit <- train(
+  Diagnostic ~ .,
+  data = Xga,
+  method = "pls",
+  trControl = ctrl,
+  metric = "ROC",
+  tuneLength = 5,
+  tuneGrid = expand.grid(ncomp = 1:5))
+
+plsFit
+varImp(plsFit)
+ggplot(plsFit)+ theme_bw()+theme(text=element_text(size = 16, family="serif"))
+
+### GA-PLS (chromosome XX)### 
+
+set.seed(58)
+X <- Num.mat
+y <- Diagnostic
+xga <- ga_pls(y, X, GA.threshold = 10, iters = 100, popSize = 100)
+Xga <- Mx[,xga$ga.selection]  
+Xga$Diagnostic <- Mx$Diagnostic
+
+set.seed(59)
+ctrl <- trainControl(method = "repeatedcv",
+                     number = 10,
+                     repeats = 10,
+                     classProbs = TRUE,
+                     summaryFunction = twoClassSummary)
+
+set.seed(60)
+plsFit <- train(
+  Diagnostic ~ .,
+  data = Xga,
+  method = "pls",
+  trControl = ctrl,
+  metric = "ROC",
+  tuneLength = 5,
+  tuneGrid = expand.grid(ncomp = 1:5))
+
+plsFit
+varImp(plsFit)
+ggplot(plsFit)+ theme_bw()+theme(text=element_text(size = 16, family="serif"))
+
+
+
+
+                                        #################
