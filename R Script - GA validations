@@ -1,7 +1,7 @@
 
 ######
 
-df <- read.csv("Laminite_GC2030_SemiQuali_AfterFiltering.csv", sep=",",header = TRUE) 
+df <- read.csv("Laminitis_SemiQuali_AfterFiltering.csv", sep=",",header = TRUE) 
 Num <- df[,3:88]
 Num.mat <- as.matrix(Num)
 Diagnostic <- as.factor(df$Diagnostic)
