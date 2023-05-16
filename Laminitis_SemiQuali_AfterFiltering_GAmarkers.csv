@@ -1,0 +1,21 @@
+Samples,Diagnostic,F13,F19,F26,F39,F72,F73,F97,F98
+LA_108 ,Laminitis,0,0,0,0,0,0,0,0
+LA_189 ,Laminitis,0,0,0,0,0,0,1,0
+LA_040 ,Laminitis,1,0,0,0,0,0,0,0
+LA_062 ,Laminitis,0,0,0,0,0,0,0,0
+LA_115 ,Laminitis,0,1,0,0,0,0,1,0
+LA_167 ,Control,0,0,0,0,0,0,0,1
+LA_191 ,Control,1,0,1,1,0,1,0,0
+LA_024 ,Control,0,0,1,0,0,0,0,1
+LA_125 ,Control,0,0,0,0,0,0,0,0
+LA_170 ,Laminitis,0,0,0,0,0,0,0,0
+LA_209 ,Control,0,0,0,0,0,0,0,1
+LA_196 ,Laminitis,0,1,0,0,1,0,1,0
+LA_159 ,Control,0,0,0,0,0,1,1,0
+LA_112 ,Laminitis,0,0,1,1,0,0,0,0
+LA_193 ,Laminitis,0,0,0,0,0,0,0,0
+LA_077 ,Control,0,1,0,0,0,1,0,0
+LA_001 ,Control,0,0,0,0,0,1,0,0
+LA_168 ,Laminitis,1,0,1,1,0,1,1,0
+LA_183 ,Control,0,1,0,0,1,0,1,1
+LA_174 ,Control,0,0,0,0,1,1,0,0
